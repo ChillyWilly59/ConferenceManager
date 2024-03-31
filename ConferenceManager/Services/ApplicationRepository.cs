@@ -63,5 +63,11 @@ namespace ConferenceManager.Services
                 .Where(a => !a.SubmittedAt.HasValue && a.CreatedAt <= unsubmittedOlder)
                 .ToListAsync();
         }
+        public async Task<Application> GetUnsignedApplicationByAuthor(Guid authorId)
+        {
+            return await context.Applications
+                .FirstOrDefaultAsync(a => a.Author == authorId && a.SubmittedAt == null);
+        }
+
     }
 }

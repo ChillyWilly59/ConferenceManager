@@ -13,5 +13,6 @@ namespace ConferenceManager.Services
         Task<IEnumerable<Application>> GetUnsignedApplications(Guid userId);
         Task<IEnumerable<Application>> GetApplicationsSubmittedAfter(DateTime submittedAfter);
         Task<IEnumerable<Application>> GetUnsubmittedApplicationsOlder(DateTime unsubmittedOlder);
+        Task <Application> GetUnsignedApplicationByAuthor(Guid authorId);
     }
 }

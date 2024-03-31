@@ -1,9 +1,12 @@
 ﻿using ConferenceManager.Data.DTO;
 using ConferenceManager.Data.Models;
-using Microsoft.OpenApi.Extensions;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ConferenceManager.Services
 {
@@ -18,10 +21,17 @@ namespace ConferenceManager.Services
 
         public async Task CreateApplication(ApplicationDto applicationDto)
         {
-            if (applicationDto.Author == Guid.Empty || string.IsNullOrEmpty(applicationDto.Name) || string.IsNullOrEmpty(applicationDto.Activity.Activity) || string.IsNullOrEmpty(applicationDto.Outline))
+            if (applicationDto.Author == Guid.Empty || string.IsNullOrEmpty(applicationDto.Name) 
+                || string.IsNullOrEmpty(applicationDto.Activity.Activity) || string.IsNullOrEmpty(applicationDto.Outline))
             {
                 throw new ArgumentException("Не все обязательные поля заполнены");
             }
+
+            //var existingUnsignedApplication = await _applicationRepository.GetUnsignedApplicationByAuthor(applicationDto.Author);
+            //if (existingUnsignedApplication != null)
+            //{
+            //    throw new InvalidOperationException("У вас уже есть не отправленная заявка");
+            //}
 
             var application = new Application
             {
@@ -36,8 +46,6 @@ namespace ConferenceManager.Services
 
             await _applicationRepository.Create(application);
         }
-
-
         public async Task UpdateApplication(Guid id, ApplicationDto applicationDto)
         {
             var existingApplication = await _applicationRepository.GetById(id);
@@ -49,6 +57,11 @@ namespace ConferenceManager.Services
             if (string.IsNullOrEmpty(applicationDto.Name) || string.IsNullOrEmpty(applicationDto.Activity.Activity) || string.IsNullOrEmpty(applicationDto.Outline))
             {
                 throw new ArgumentException("Не все обязательные поля заполнены");
+            }
+
+            if (existingApplication.SubmittedAt != null)
+            {
+                throw new InvalidOperationException("Нельзя редактировать отправленную заявку");
             }
 
             existingApplication.Name = applicationDto.Name;
@@ -67,6 +80,11 @@ namespace ConferenceManager.Services
                 throw new InvalidOperationException("Заявка не найдена");
             }
 
+            if (existingApplication.SubmittedAt != null)
+            {
+                throw new InvalidOperationException("Нельзя удалять отправленную заявку");
+            }
+
             await _applicationRepository.Delete(existingApplication);
         }
 
@@ -81,6 +99,11 @@ namespace ConferenceManager.Services
             if (existingApplication.Author == Guid.Empty || existingApplication.Name == null || existingApplication.Activity == null || existingApplication.Outline == null)
             {
                 throw new ArgumentException("Не все обязательные поля заполнены");
+            }
+
+            if (existingApplication.SubmittedAt != null)
+            {
+                throw new InvalidOperationException("Заявка уже отправлена на рассмотрение");
             }
 
             existingApplication.SubmittedAt = DateTime.UtcNow.Date;
@@ -122,8 +145,6 @@ namespace ConferenceManager.Services
             });
         }
 
-
-
         public async Task<ApplicationDto> GetApplication(Guid id)
         {
             var application = await _applicationRepository.GetById(id);
@@ -163,7 +184,6 @@ namespace ConferenceManager.Services
             });
         }
 
-
         public async Task<IEnumerable<ActivityDto>> GetActivities()
         {
             var activityTypeValues = Enum.GetValues(typeof(ActivityType)).Cast<ActivityType>();
@@ -186,7 +206,7 @@ namespace ConferenceManager.Services
 
             return attribute == null ? value.ToString() : attribute.Description;
         }
-
+        
     }
 
 }
