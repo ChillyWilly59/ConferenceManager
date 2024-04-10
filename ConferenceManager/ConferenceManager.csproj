@@ -19,4 +19,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ConferenceManager.Data\ConferenceManager.Data.csproj" />
+    <ProjectReference Include="..\ConferenceManager.Domain\ConferenceManager.Domain.csproj" />
+    <ProjectReference Include="..\ConferenceManager.DTO\ConferenceManager.DTO.csproj" />
+  </ItemGroup>
+
 </Project>

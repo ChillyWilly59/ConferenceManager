@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ConferenceManager.Data.DTO;
 using ConferenceManager.Services;
+using ConferenceManager.DTO;
 
 namespace ConferenceManager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ApplicationController : ControllerBase
     {
@@ -15,155 +15,53 @@ namespace ConferenceManager.Controllers
             _applicationService = applicationService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("/create")]
         public async Task<IActionResult> CreateApplication([FromBody] ApplicationDto applicationDto)
         {
-            try
-            {
-                await _applicationService.CreateApplication(applicationDto);
-                return Ok();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            await _applicationService.CreateApplication(applicationDto);
+            return Ok();
         }
 
-        [HttpPut("{id}/update")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateApplication(Guid id, [FromBody] ApplicationDto applicationDto)
         {
-            try
-            {
-                await _applicationService.UpdateApplication(id, applicationDto);
-                return Ok();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            await _applicationService.UpdateApplication(id, applicationDto);
+            return Ok();
         }
 
-        [HttpDelete("{id}/delete")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteApplication(Guid id)
         {
-            try
-            {
-                await _applicationService.DeleteApplication(id);
-                return Ok();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            await _applicationService.DeleteApplication(id);
+            return Ok();
         }
 
         [HttpPost("{id}/submit")]
         public async Task<IActionResult> SubmitApplication(Guid id)
         {
-            try
-            {
-                await _applicationService.SubmitApplication(id);
-                return Ok();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            await _applicationService.SubmitApplication(id);
+            return Ok();
         }
 
-        [HttpGet("submitted-after")]
+        [HttpGet("submittedAfter")]
         public async Task<IActionResult> GetApplicationsSubmittedAfter(DateTime submittedAfter)
         {
-            try
-            {
-                var applications = await _applicationService.GetApplicationsSubmittedAfter(submittedAfter);
-                return Ok(applications);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            var applications = await _applicationService.GetApplicationsSubmittedAfter(submittedAfter);
+            return Ok(applications);
         }
 
-        [HttpGet("unsubmitted-older")]
+        [HttpGet("unsubmittedOlder")]
         public async Task<IActionResult> GetUnsubmittedApplicationsOlderThan(DateTime unsubmittedOlder)
         {
-            try
-            {
-                var applications = await _applicationService.GetUnsubmittedApplicationsOlder(unsubmittedOlder);
-                return Ok(applications);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            var applications = await _applicationService.GetUnsubmittedApplicationsOlder(unsubmittedOlder);
+            return Ok(applications);
         }
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetApplication(Guid id)
         {
-            try
-            {
-                var application = await _applicationService.GetApplication(id);
-                return Ok(application);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
-        }
-
-        [HttpGet("unsubmitted")]
-        public async Task<IActionResult> GetUnsignedApplications(Guid userId)
-        {
-            try
-            {
-                var application = await _applicationService.GetUnsignedApplications(userId);
-                return Ok(application);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
-        }
-
-        [HttpGet("activities")]
-        public async Task<IActionResult> GetActivities()
-        {
-            try
-            {
-                var activities = await _applicationService.GetActivities();
-                return Ok(activities);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-            }
+            var application = await _applicationService.GetApplication(id);
+            return Ok(application);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ConferenceManager.Data.DTO
+﻿namespace ConferenceManager.DTO
 {
     public class ApplicationDto
     {
@@ -8,7 +8,7 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public string Outline { get; set; }
-        public DateTime? SubmittedAt { get; internal set; }
-        public DateTime? CreatedAt { get; internal set; }
+        public DateTime? SubmittedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }

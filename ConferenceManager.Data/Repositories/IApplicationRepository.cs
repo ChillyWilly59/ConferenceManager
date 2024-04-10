@@ -1,5 +1,4 @@
-﻿using ConferenceManager.Data.DTO;
-using ConferenceManager.Data.Models;
+﻿using ConferenceManager.Data.Models;
 
 namespace ConferenceManager.Services
 {

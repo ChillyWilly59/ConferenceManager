@@ -1,12 +1,7 @@
-﻿using ConferenceManager.Data.DTO;
-using ConferenceManager.Data.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using ConferenceManager.Data.Models;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using ConferenceManager.DTO;
 
 namespace ConferenceManager.Services
 {
@@ -18,20 +13,37 @@ namespace ConferenceManager.Services
         {
             _applicationRepository = applicationRepository;
         }
-
         public async Task CreateApplication(ApplicationDto applicationDto)
         {
-            if (applicationDto.Author == Guid.Empty || string.IsNullOrEmpty(applicationDto.Name) 
-                || string.IsNullOrEmpty(applicationDto.Activity.Activity) || string.IsNullOrEmpty(applicationDto.Outline))
+            if (applicationDto.Author == Guid.Empty)
             {
                 throw new ArgumentException("Не все обязательные поля заполнены");
             }
+            if (string.IsNullOrEmpty(applicationDto.Name) || applicationDto.Name.Length > 100)
+            {
+                throw new ArgumentException("Название заявки должно быть заполнено и не превышать 100 символов");
+            }
 
-            //var existingUnsignedApplication = await _applicationRepository.GetUnsignedApplicationByAuthor(applicationDto.Author);
-            //if (existingUnsignedApplication != null)
-            //{
-            //    throw new InvalidOperationException("У вас уже есть не отправленная заявка");
-            //}
+            if (!string.IsNullOrEmpty(applicationDto.Description) && applicationDto.Description.Length > 500)
+            {
+                throw new ArgumentException("Описание заявки не должно превышать 500 символов");
+            }
+
+            if (string.IsNullOrEmpty(applicationDto.Activity.Activity))
+            {
+                throw new ArgumentException("Не указан вид деятельности");
+            }
+
+            if (!string.IsNullOrEmpty(applicationDto.Outline) && applicationDto.Outline.Length > 1000)
+            {
+                throw new ArgumentException("Краткое описание заявки не должно превышать 1000 символов");
+            }
+
+            var existingUnsignedApplication = await _applicationRepository.GetUnsignedApplicationByAuthor(applicationDto.Author);
+            if (existingUnsignedApplication != null)
+            {
+                throw new InvalidOperationException("У вас уже есть не отправленная заявка");
+            }
 
             var application = new Application
             {
@@ -71,7 +83,6 @@ namespace ConferenceManager.Services
 
             await _applicationRepository.Update(existingApplication);
         }
-
         public async Task DeleteApplication(Guid id)
         {
             var existingApplication = await _applicationRepository.GetById(id);
@@ -87,7 +98,6 @@ namespace ConferenceManager.Services
 
             await _applicationRepository.Delete(existingApplication);
         }
-
         public async Task SubmitApplication(Guid id)
         {
             var existingApplication = await _applicationRepository.GetById(id);
@@ -110,7 +120,6 @@ namespace ConferenceManager.Services
 
             await _applicationRepository.Update(existingApplication);
         }
-
         public async Task<IEnumerable<ApplicationDto>> GetApplicationsSubmittedAfter(DateTime submittedAfter)
         {
             var applications = await _applicationRepository.GetApplicationsSubmittedAfter(submittedAfter);
@@ -127,7 +136,6 @@ namespace ConferenceManager.Services
                 SubmittedAt = a.SubmittedAt
             });
         }
-
         public async Task<IEnumerable<ApplicationDto>> GetUnsubmittedApplicationsOlder(DateTime unsubmittedOlder)
         {
             var applications = await _applicationRepository.GetUnsubmittedApplicationsOlder(unsubmittedOlder);
@@ -144,7 +152,6 @@ namespace ConferenceManager.Services
                 SubmittedAt = a.SubmittedAt
             });
         }
-
         public async Task<ApplicationDto> GetApplication(Guid id)
         {
             var application = await _applicationRepository.GetById(id);
@@ -166,7 +173,6 @@ namespace ConferenceManager.Services
                 SubmittedAt = application.SubmittedAt
             };
         }
-
         public async Task<IEnumerable<ApplicationDto>> GetUnsignedApplications(Guid userId)
         {
             var unsignedApplications = await _applicationRepository.GetUnsignedApplications(userId);
@@ -183,8 +189,7 @@ namespace ConferenceManager.Services
                 SubmittedAt = a.SubmittedAt
             });
         }
-
-        public async Task<IEnumerable<ActivityDto>> GetActivities()
+        public Task<IEnumerable<ActivityDto>> GetActivities()
         {
             var activityTypeValues = Enum.GetValues(typeof(ActivityType)).Cast<ActivityType>();
 
@@ -196,9 +201,8 @@ namespace ConferenceManager.Services
                 activities.Add(new ActivityDto { Activity = activityType.ToString(), Dicription = description });
             }
 
-            return activities;
+            return Task.FromResult<IEnumerable<ActivityDto>>(activities);
         }
-
         private string GetEnumDescription(ActivityType value)
         {
             FieldInfo field = value.GetType().GetField(value.ToString());
@@ -206,7 +210,5 @@ namespace ConferenceManager.Services
 
             return attribute == null ? value.ToString() : attribute.Description;
         }
-        
     }
-
 }
